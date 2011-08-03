@@ -1,0 +1,10 @@
+name: <PluginName>
+main: <yourname>.<pluginname>.<PluginName>
+version: <Version Number>
+commands:
+    pos:
+        description: blah
+        usage: /pos
+    debug:
+        description: blah blah
+        usage: /debug

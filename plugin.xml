@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="com.master.eclipsebukkit.category"
+            name="Bukkit">
+      </category>
+      <view
+            category="com.master.eclipsebukkit.category"
+            class="com.master.eclipsebukkit.ServerView"
+            icon="icons/favicon.ico"
+            id="com.master.eclipsebukkit.serverview"
+            name="Bukkit Servers"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         id="id1"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="com.master.eclipsebukkit.BukkitNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="com.master.eclipsebukkit.bukkit"
+            name="Bukkit">
+      </category>
+      <wizard
+            category="com.master.eclipsebukkit.bukkit"
+            class="com.master.eclipsebukkit.BukkitProjectWizard"
+            icon="icons/favicon.ico"
+            id="com.master.eclipsebukkit.bukkitprojectwizard"
+            name="Bukkit Plugin">
+      </wizard>
+   </extension>
+
+</plugin>
