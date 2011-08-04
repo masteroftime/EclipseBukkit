@@ -9,7 +9,6 @@ import org.eclipse.jdt.ui.wizards.NewJavaProjectWizardPageOne;
 import org.eclipse.jdt.ui.wizards.NewJavaProjectWizardPageTwo;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
@@ -64,7 +63,14 @@ public class BukkitProjectWizard extends Wizard implements INewWizard {
 			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException,
 					InterruptedException {
-				BukkitPluginSupport.createBukkitProject(jPage2.getJavaProject(), bPage.getBukkitVers(), bPage.getCraftVers(), monitor);
+				if(!bPage.doUseFile())
+				{
+					BukkitPluginSupport.createBukkitProject(jPage2.getJavaProject(), bPage.noBukkit()?-2:bPage.getBukkitVers(), bPage.getCraftVers(), bPage.getMain(), monitor);
+				}
+				else
+				{
+					BukkitPluginSupport.createBukkitProject(jPage2.getJavaProject(), bPage.noBukkit()?null:bPage.getBukkitFile(), bPage.getCraftFile(), bPage.getMain(), monitor);
+				}
 			}
 		};
 		
@@ -92,7 +98,7 @@ public class BukkitProjectWizard extends Wizard implements INewWizard {
 	public void addPages() {
 		jPage1 = new NewJavaProjectWizardPageOne();
 		jPage2 = new NewJavaProjectWizardPageTwo(jPage1);
-		bPage = new NewBukkitProjectPage();
+		bPage = new NewBukkitProjectPage(jPage1);
 		
 		jPage1.setTitle("Create a Bukkit Plugin");
 		jPage2.setTitle("Create a Bukkit Plugin");
