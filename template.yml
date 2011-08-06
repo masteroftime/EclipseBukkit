@@ -1,6 +1,6 @@
-name: <PluginName>
-main: <yourname>.<pluginname>.<PluginName>
-version: <Version Number>
+name: ###pluginname###
+main: ###main###
+version: 0.1
 commands:
     pos:
         description: blah

@@ -1,12 +1,16 @@
 package com.master.eclipsebukkit;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -32,26 +36,18 @@ public class BukkitPluginSupport
 {
 	public static void createBukkitProject(IJavaProject project, int bukkitVers, int craftVers, String main, IProgressMonitor monitor)
 	{
-		try {
-			if(bukkitVers == -1 && craftVers > 0)
+		if(bukkitVers == 0 && craftVers != 0)
+		{
+			int bukkit = getMatchingBukkitNr(craftVers < 0? craftVers*-1:craftVers);
+			if(bukkit != 0)
 			{
-				int bukkit = getMatchingBukkitNr(craftVers);
-				if(bukkit != -1)
-				{
-					createBukkitProject(project, bukkit, craftVers, main, monitor);
-				}
-				else createBukkitProject(project, -2, craftVers, main, monitor);
+				createBukkitProject(project, bukkit, craftVers, main, monitor);
 			}
-			else
-			{
-				createBukkitProject(project, bukkitVers == -2?null:getBukkit(bukkitVers), getCraftBukkit(craftVers), main, monitor);
-			}
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			else createBukkitProject(project, -1, craftVers, main, monitor);
+		}
+		else
+		{
+			createBukkitProject(project, BukkitJarManager.getBukkitFile(bukkitVers, monitor), BukkitJarManager.getCraftBukkitFile(craftVers, monitor), main, monitor);
 		}
 	}
 	
@@ -68,26 +64,44 @@ public class BukkitPluginSupport
 	{
 		try {
 			Bundle bundle = Platform.getBundle("com.master.eclipsebukkit");
-			project.getProject().getFile("src/plugin.yml").create(FileLocator.openStream(bundle, new Path("template.yml"), false), false, monitor);
 			//project.getProject().getFolder("srv").create(IResource.HIDDEN, true, monitor);
-			project.getProject().getFile("bin/craftbukkit.jar").create(craftBukkit, false, monitor);
+			
+			if(craftBukkit != null)
+			{
+				project.getProject().getFile("bin/craftbukkit.jar").create(craftBukkit, false, monitor);
+			}
+			
+			//project.getProject().getFile("src/plugin.yml").create(FileLocator.openStream(bundle, new Path("template.yml"), false), false, monitor);
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(FileLocator.openStream(bundle, new Path("template.yml"), false)));
+			
+			String line;
+			String content = "";
+			while((line = reader.readLine()) != null)
+			{
+				line = line.replace("###pluginname###", project.getElementName());
+				line = line.replace("###main###", main);
+				content += line+"\n";
+			}
+			
+			project.getProject().getFile("src/plugin.yml").create(new ByteArrayInputStream(content.getBytes()), false, monitor);
+			
 			
 			String p = main.substring(0, main.lastIndexOf("."));
 			String mainClass = main.substring(main.lastIndexOf(".")+1);
 			
-			BufferedReader reader = new BufferedReader(new InputStreamReader(FileLocator.openStream(bundle, new Path("mainClass.java"), false)));
-			String line;
-			String classContent = "";
+			reader = new BufferedReader(new InputStreamReader(FileLocator.openStream(bundle, new Path("mainClass.java"), false)));
+			content = "";
 			while((line = reader.readLine()) != null)
 			{
 				line = line.replace("###packagename###", p);
 				line = line.replace("###classname###", mainClass);
-				classContent += line+"\n";
+				content += line+"\n";
 			}
 			
 			IPackageFragmentRoot packageRoot = (IPackageFragmentRoot) JavaCore.create(project.getProject().getFolder("src"));
 			IPackageFragment pack = packageRoot.createPackageFragment(p, false, monitor);
-			ICompilationUnit mainUnit = pack.createCompilationUnit(mainClass+".java", classContent, false, monitor);
+			ICompilationUnit mainUnit = pack.createCompilationUnit(mainClass+".java", content, false, monitor);
 			
 			if(bukkit != null)
 			{
@@ -138,6 +152,7 @@ public class BukkitPluginSupport
 		
 	}
 	
+	/*
 	private static InputStream getBukkit(int buildNr) throws MalformedURLException, IOException
 	{
 		if(buildNr == -1)
@@ -148,8 +163,8 @@ public class BukkitPluginSupport
 		{
 			return new URL("http://ci.bukkit.org/job/dev-Bukkit/"+buildNr+"/artifact/target/bukkit-0.0.1-SNAPSHOT.jar").openStream();
 		}
-	}
-	
+	}*/
+	/*
 	private static InputStream getCraftBukkit(int buildNr) throws MalformedURLException, IOException
 	{
 		if(buildNr == -1)
@@ -160,11 +175,11 @@ public class BukkitPluginSupport
 		{
 			return new URL("http://ci.bukkit.org/job/dev-CraftBukkit/"+buildNr+"/artifact/target/craftbukkit-0.0.1-SNAPSHOT.jar").openStream();
 		}
-	}
+	}*/
 	
 	public static int[] getLastBuildNr()
 	{
-		int[] res = new int[] {-1,-1};
+		int[] res = new int[] {0,0};
 		
 		try {
 			BufferedReader r = new BufferedReader(new InputStreamReader(new URL("http://ci.bukkit.org/job/dev-craftbukkit/Recommended/").openStream()));
@@ -209,6 +224,11 @@ public class BukkitPluginSupport
 				{
 					int i = line.indexOf("Bukkit: #") +9;
 					return Integer.parseInt(line.substring(i, line.indexOf('<', i)));
+				}
+				if(line.contains("dev-Bukkit</a><a href=\"/job/dev-Bukkit/"))
+				{
+					int i = line.indexOf("dev-Bukkit</a><a href=\"/job/dev-Bukkit/") +39;
+					return Integer.parseInt(line.substring(i, line.indexOf('/', i)));
 				}
 			}
 			

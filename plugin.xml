@@ -2,22 +2,8 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.eclipse.ui.views">
-      <category
-            id="com.master.eclipsebukkit.category"
-            name="%category.name">
-      </category>
-      <view
-            category="com.master.eclipsebukkit.category"
-            class="com.master.eclipsebukkit.ServerView"
-            icon="icons/bukkit.ico"
-            id="com.master.eclipsebukkit.serverview"
-            name="%view.name"
-            restorable="true">
-      </view>
-   </extension>
-   <extension
-         id="id1"
+         id="com.master.eclipsebukkit.BukkitNature"
+         name="Bukkit Plugin"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
@@ -38,13 +24,14 @@
             id="com.master.eclipsebukkit.bukkitprojectwizard"
             name="%wizard.name">
       </wizard>
-      <wizard
-            category="com.master.eclipsebukkit.bukkit"
-            class="com.master.eclipsebukkit.NewServerWizard"
-            icon="icons/server.png"
-            id="com.master.eclipsebukkit.serverwizard"
-            name="Bukkit Server">
-      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/bukkit.ico"
+            id="com.master.eclipsebukkit.bukkitNatureImage"
+            natureId="com.master.eclipsebukkit.BukkitNature">
+      </image>
    </extension>
 
 </plugin>

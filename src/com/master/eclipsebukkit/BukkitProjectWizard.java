@@ -65,11 +65,11 @@ public class BukkitProjectWizard extends Wizard implements INewWizard {
 					InterruptedException {
 				if(!bPage.doUseFile())
 				{
-					BukkitPluginSupport.createBukkitProject(jPage2.getJavaProject(), bPage.noBukkit()?-2:bPage.getBukkitVers(), bPage.getCraftVers(), bPage.getMain(), monitor);
+					BukkitPluginSupport.createBukkitProject(jPage2.getJavaProject(), bPage.noBukkit()?-1:bPage.getBukkitVers(), bPage.noCraft()?bPage.getCraftVers()*-1:bPage.getCraftVers(), bPage.getMain(), monitor);
 				}
 				else
 				{
-					BukkitPluginSupport.createBukkitProject(jPage2.getJavaProject(), bPage.noBukkit()?null:bPage.getBukkitFile(), bPage.getCraftFile(), bPage.getMain(), monitor);
+					BukkitPluginSupport.createBukkitProject(jPage2.getJavaProject(), bPage.noBukkit()?null:bPage.getBukkitFile(), bPage.noCraft()?null:bPage.getCraftFile(), bPage.getMain(), monitor);
 				}
 			}
 		};

@@ -19,8 +19,8 @@ import org.eclipse.wb.swt.ResourceManager;
 public class NewBukkitProjectPage extends WizardPage {
 	private Text txtVers;
 	private Text txtBukkitFile;
-	private Combo combo;
-	private Button btnNewButton;
+	//private Combo combo;
+	//private Button btnNewButton;
 	private Label lblNewestLabel;
 	private Text txtCraftFile;
 	private Button btnOpenBukkit;
@@ -30,6 +30,7 @@ public class NewBukkitProjectPage extends WizardPage {
 	private int craftVers;
 	private boolean useFile;
 	private boolean noBukkit;
+	private boolean noCraft;
 	private int specifiedVersion;
 	private String bukkitFile;
 	private String craftFile;
@@ -39,11 +40,12 @@ public class NewBukkitProjectPage extends WizardPage {
 	private Text txtMain;
 	
 	private NewJavaProjectWizardPageOne previous;
+	private Button btnUseCraft;
 
 	public int getBukkitVers() {
 		if(specifiedVersion != -1)
 		{
-			return bukkitVers;
+			return 0;
 		}
 		else return bukkitVers;
 	}
@@ -70,6 +72,10 @@ public class NewBukkitProjectPage extends WizardPage {
 	
 	public boolean noBukkit() {
 		return noBukkit;
+	}
+	
+	public boolean noCraft() {
+		return noCraft;
 	}
 	
 	public String getMain() {
@@ -113,7 +119,7 @@ public class NewBukkitProjectPage extends WizardPage {
 		
 		Group grpBukkitVersion = new Group(container, SWT.NONE);
 		grpBukkitVersion.setText("Bukkit Version");
-		grpBukkitVersion.setBounds(10, 10, 554, 195);
+		grpBukkitVersion.setBounds(10, 10, 554, 192);
 		
 		Button btnNewest = new Button(grpBukkitVersion, SWT.RADIO);
 		btnNewest.setSelection(true);
@@ -124,12 +130,12 @@ public class NewBukkitProjectPage extends WizardPage {
 		lblNewestLabel.setBounds(241, 21, 55, 15);
 		lblNewestLabel.setText("Loading...");
 		
-		Button btnSpecNr = new Button(grpBukkitVersion, SWT.RADIO);
+		final Button btnSpecNr = new Button(grpBukkitVersion, SWT.RADIO);
 		btnSpecNr.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				txtVers.setEnabled(!txtVers.isEnabled());
-				if(txtVers.getEnabled())
+				txtVers.setEnabled(btnSpecNr.getSelection());
+				if(btnSpecNr.getSelection())
 				{
 					if(txtVers.getText().length() != 0)
 					{
@@ -165,25 +171,16 @@ public class NewBukkitProjectPage extends WizardPage {
 		txtVers.setEnabled(false);
 		txtVers.setBounds(241, 42, 55, 21);
 		
-		Button btnServer = new Button(grpBukkitVersion, SWT.RADIO);
-		btnServer.setEnabled(false);
-		btnServer.setBounds(10, 68, 177, 16);
-		btnServer.setText("Use Server Version:");
-		
-		Label lblNewLabel_1 = new Label(grpBukkitVersion, SWT.NONE);
-		lblNewLabel_1.setEnabled(false);
-		lblNewLabel_1.setBounds(241, 69, 55, 15);
-		lblNewLabel_1.setText("No Server");
-		
-		combo = new Combo(container, SWT.NONE);
+		/*combo = new Combo(container, SWT.NONE);
 		combo.setEnabled(false);
 		combo.setBounds(160, 266, 370, 23);
 		
 		btnNewButton = new Button(container, SWT.NONE);
 		btnNewButton.setEnabled(false);
 		btnNewButton.setImage(ResourceManager.getPluginImage("org.eclipse.ui", "/icons/full/obj16/add_obj.gif"));
-		btnNewButton.setBounds(536, 264, 28, 25);
+		btnNewButton.setBounds(536, 264, 28, 25);*/
 		
+		/*
 		Button btnCheckButton = new Button(container, SWT.CHECK);
 		btnCheckButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -193,38 +190,48 @@ public class NewBukkitProjectPage extends WizardPage {
 			}
 		});
 		btnCheckButton.setBounds(20, 268, 134, 16);
-		btnCheckButton.setText("Use Server for Testing");
+		btnCheckButton.setText("Use Server for Testing");*/
 		
 		int[] version = BukkitPluginSupport.getLastBuildNr();
 		lblNewestLabel.setText(""+version[0]);
 		
-		Button btnNoBukkit = new Button(grpBukkitVersion, SWT.CHECK);
-		btnNoBukkit.setBounds(10, 170, 163, 16);
+		final Button btnNoBukkit = new Button(grpBukkitVersion, SWT.CHECK);
+		btnNoBukkit.setBounds(10, 146, 163, 16);
 		btnNoBukkit.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				noBukkit = !noBukkit;
+				noBukkit = btnNoBukkit.getSelection();
+				
+				btnUseCraft.setEnabled(!noBukkit);
+				
+				if(noBukkit)
+				{
+					btnUseCraft.setSelection(true);
+					noCraft = false;
+				}
 				
 				if(useFile)
 				{
 					txtBukkitFile.setEnabled(!txtBukkitFile.getEnabled());
 					btnOpenBukkit.setEnabled(!btnOpenBukkit.getEnabled());
+					txtCraftFile.setEnabled(btnUseCraft.getSelection());
+					btnOpenCraft.setEnabled(btnUseCraft.getSelection());
 				}
 			}
 		});
 		btnNoBukkit.setText("Bind directly to CraftBukkit");
 		
-		Button btnSpecFile = new Button(grpBukkitVersion, SWT.RADIO);
-		btnSpecFile.setBounds(10, 90, 100, 16);
+		final Button btnSpecFile = new Button(grpBukkitVersion, SWT.RADIO);
+		btnSpecFile.setBounds(10, 66, 100, 16);
 		btnSpecFile.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(!noBukkit) txtBukkitFile.setEnabled(!txtBukkitFile.isEnabled());
-				txtCraftFile.setEnabled(!txtCraftFile.isEnabled());
-				if(!noBukkit) btnOpenBukkit.setEnabled(!btnOpenBukkit.isEnabled());
-				btnOpenCraft.setEnabled(!btnOpenCraft.isEnabled());
+				if(!noBukkit) txtBukkitFile.setEnabled(btnSpecFile.getSelection());
+				if(!noCraft)  txtCraftFile.setEnabled(btnSpecFile.getSelection());
+				if(!noBukkit) btnOpenBukkit.setEnabled(btnSpecFile.getSelection());
+				if(!noCraft)  btnOpenCraft.setEnabled(btnSpecFile.getSelection());
 				
-				useFile = !useFile;
+				useFile = btnSpecFile.getSelection();
 				
 				if(useFile)
 				{
@@ -245,7 +252,7 @@ public class NewBukkitProjectPage extends WizardPage {
 				bukkitFile = txtBukkitFile.getText();
 			}
 		});
-		txtBukkitFile.setBounds(149, 112, 360, 21);
+		txtBukkitFile.setBounds(149, 88, 360, 21);
 		txtBukkitFile.setEnabled(false);
 		txtBukkitFile.setText(System.getProperty("user.home")+"\\");
 		
@@ -256,15 +263,15 @@ public class NewBukkitProjectPage extends WizardPage {
 			}
 		});
 		txtCraftFile.setEnabled(false);
-		txtCraftFile.setBounds(149, 139, 360, 21);
+		txtCraftFile.setBounds(149, 115, 360, 21);
 		txtCraftFile.setText(System.getProperty("user.home")+"\\");
 		
 		Label lblBukkit = new Label(grpBukkitVersion, SWT.NONE);
-		lblBukkit.setBounds(50, 115, 62, 15);
+		lblBukkit.setBounds(50, 91, 62, 15);
 		lblBukkit.setText("Bukkit:");
 		
 		Label lblCraftbukkit = new Label(grpBukkitVersion, SWT.NONE);
-		lblCraftbukkit.setBounds(50, 142, 62, 15);
+		lblCraftbukkit.setBounds(50, 118, 62, 15);
 		lblCraftbukkit.setText("CraftBukkit:");
 		
 		btnOpenBukkit = new Button(grpBukkitVersion, SWT.NONE);
@@ -279,7 +286,7 @@ public class NewBukkitProjectPage extends WizardPage {
 		});
 		btnOpenBukkit.setEnabled(false);
 		btnOpenBukkit.setImage(ResourceManager.getPluginImage("org.eclipse.ui", "/icons/full/obj16/fldr_obj.gif"));
-		btnOpenBukkit.setBounds(515, 110, 29, 25);
+		btnOpenBukkit.setBounds(515, 86, 29, 25);
 		
 		btnOpenCraft = new Button(grpBukkitVersion, SWT.NONE);
 		btnOpenCraft.addSelectionListener(new SelectionAdapter() {
@@ -293,7 +300,24 @@ public class NewBukkitProjectPage extends WizardPage {
 		});
 		btnOpenCraft.setEnabled(false);
 		btnOpenCraft.setImage(ResourceManager.getPluginImage("org.eclipse.ui", "/icons/full/obj16/fldr_obj.gif"));
-		btnOpenCraft.setBounds(515, 137, 29, 25);
+		btnOpenCraft.setBounds(515, 113, 29, 25);
+		
+		btnUseCraft = new Button(grpBukkitVersion, SWT.CHECK);
+		btnUseCraft.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				noCraft = !btnUseCraft.getSelection();
+				
+				if(useFile)
+				{
+					txtCraftFile.setEnabled(!txtCraftFile.getEnabled());
+					btnOpenCraft.setEnabled(!btnOpenCraft.getEnabled());
+				}
+			}
+		});
+		btnUseCraft.setSelection(true);
+		btnUseCraft.setBounds(10, 168, 249, 16);
+		btnUseCraft.setText("Download CraftBukkit (required for testing)");
 		
 		txtMain = new Text(container, SWT.BORDER);
 		txtMain.addModifyListener(new ModifyListener() {
@@ -301,10 +325,10 @@ public class NewBukkitProjectPage extends WizardPage {
 				main = txtMain.getText();
 			}
 		});
-		txtMain.setBounds(160, 211, 404, 21);
+		txtMain.setBounds(96, 208, 468, 21);
 		
 		Label lblMainClass = new Label(container, SWT.NONE);
-		lblMainClass.setBounds(20, 214, 60, 15);
+		lblMainClass.setBounds(20, 211, 60, 15);
 		lblMainClass.setText("Main Class:");
 		bukkitVers = version[1];
 		craftVers = version[0];
@@ -334,6 +358,4 @@ public class NewBukkitProjectPage extends WizardPage {
 	public boolean canFlipToNextPage() {
 		return canFlipPage;
 	}
-	
-	
 }
