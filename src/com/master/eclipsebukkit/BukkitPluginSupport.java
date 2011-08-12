@@ -68,7 +68,7 @@ public class BukkitPluginSupport
 			
 			if(craftBukkit != null)
 			{
-				project.getProject().getFile("bin/craftbukkit.jar").create(craftBukkit, false, monitor);
+				project.getProject().getFile("srv/craftbukkit.jar").create(craftBukkit, false, monitor);
 			}
 			
 			//project.getProject().getFile("src/plugin.yml").create(FileLocator.openStream(bundle, new Path("template.yml"), false), false, monitor);
